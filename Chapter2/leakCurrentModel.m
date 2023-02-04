@@ -1,5 +1,6 @@
 % Tutorial 2.1, Leaky integrate and fire model
 % Written by Clark Xu
+% Feb. 3, 2023
 
 %% parameter
 E_l = -0.070;
@@ -8,18 +9,18 @@ C_m = 2e-9;
 V_reset = -0.065;
 V_threshold = -0.050;
 t_max = 2;
-dt = 1e-4;
+dt = 1e-5;
 tau_m = C_m*R_m;
-question_number=2;
+question_number=2; % Accepted inputs are 1 and 2
 
 % threshold for current
-I_threshold = (1/R_m)*(V_threshold-E_l); 
+I_threshold = (1/R_m)*(V_threshold-E_l);
 
 %% Create vectors
 % Io is the list of Iapp values
 Io = 1:0.01:1.5;
 Ntrial=length(Io);
-Io = I_threshold*Io; 
+Io = I_threshold*Io;
 
 t = 0:dt:t_max;
 Nt = length(t);
@@ -31,6 +32,8 @@ firing = zeros(1, Ntrial);
 % firing rate calculated from inverse of ISI
 calculated_firing = zeros(1, Ntrial);
 
+sigma = [0, 1e-4, 1e-3, 5e-3, 1e-2, 1.5e-2, 1.74e-2];
+
 %% simulation
 for trial=1:Ntrial    
     firing_count = 0;   % initialize firing count to 0 every trial
@@ -41,13 +44,13 @@ for trial=1:Ntrial
         case 1
             noise_vec = zeros(1,Nt);    % No noise in question1
         case 2
-            sigma_I =2.3e-7;
+            sigma_I =sigma(3);  % choose one sigma value from list
             noise_vec = rand(1,Nt)*sigma_I*sqrt(dt);
     end
 
     for i=2:Nt
-        dV = ((E_l-V(trial,i-1))/R_m+I_app(1,i)+noise_vec(1,i))*(dt/C_m);
-        V(trial,i) = V(trial,i-1)+dV;
+        dV = ((E_l-V(trial,i-1))/R_m+I_app(1,i))*(dt/C_m);
+        V(trial,i) = V(trial,i-1)+dV+noise_vec(1,i);
 
         % Reset if exceed threshold
         if V(trial,i)>V_threshold
@@ -72,7 +75,29 @@ for trial=1:Ntrial
 
 end
 
-plot(Io, firing);
+
+switch question_number
+    case 1
+        figure(1)
+        plot(0:dt:0.2, V(2, 1:0.2/dt+1))
+        xlabel("time (s)")
+        ylabel("V membrane (V)s")
+
+        figure(2)
+        plot(Io, firing);
+        xlabel("Applied Current");
+        ylabel("firing rate(Hz)");
+        hold on
+        plot(Io, calculated_firing);
+        legend("counted", "calculated", "Location","northwest")
+        
+        
+    case 2
+        plot(Io, firing);
+        xlabel("Applied Current")
+        ylabel("firing rate (Hz)")
+        title("sigma_I = 1e-3")
+end
 
 
 
