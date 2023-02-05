@@ -7,9 +7,9 @@ E_l = -0.070;
 R_m = 5e6;
 C_m = 2e-9;
 V_reset = -0.065;
-V_threshold = -0.050;
-t_max = 2;
-dt = 1e-5;
+V_threshold = -0.050; 
+t_max = 2;  % 2 second simulation
+dt = 1e-4;  % time scale is 0.1 ms
 tau_m = C_m*R_m;
 question_number=2; % Accepted inputs are 1 and 2
 
