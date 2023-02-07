@@ -11,14 +11,14 @@ V_threshold = -0.050;
 t_max = 2;  % 2 second simulation
 dt = 1e-4;  % time scale is 0.1 ms
 tau_m = C_m*R_m;
-question_number=2; % Accepted inputs are 1 and 2
+question_number=1; % Accepted inputs are 1 and 2
 
 % threshold for current
 I_threshold = (1/R_m)*(V_threshold-E_l);
 
 %% Create vectors
 % Io is the list of Iapp values
-Io = 1:0.01:1.5;
+Io = 0:0.01:1.5;
 Ntrial=length(Io);
 Io = I_threshold*Io;
 
@@ -88,8 +88,8 @@ switch question_number
         xlabel("Applied Current");
         ylabel("firing rate(Hz)");
         hold on
-        plot(Io, calculated_firing);
-        legend("counted", "calculated", "Location","northwest")
+        %plot(Io, calculated_firing);
+        %legend("counted", "calculated", "Location","northwest")
         
         
     case 2
