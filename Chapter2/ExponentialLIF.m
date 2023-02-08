@@ -102,23 +102,27 @@ for trial=1:Ntrial
                 V(trial,i) = V(trial,i-1)+dV;
                 
         end
+
         % spike occurs
         if V(trial,i)>Vth
             V(trial,i)=Vreset;  % reset membrane potential
 
             switch question_number
-                case {1,2}
+                case {1,2}  % increment G_SRA
                     G_SRA(trial,i)=G_SRA(trial,i)+delta_G_RSA;
-                case {3,4}
+                case {3,4}  % increment I_SRA
                     I_SRA(trial,i)=I_SRA(trial,i)+b;
             end
             
             interval=i*dt-last_spike;   % INI updated every spike
+
             if last_spike==0
                 ISI(trial,1)=interval;  % fist inter-spike interval         
             end  
+
             last_spike=i*dt;    % update last spike
         end
+
         ISI(trial,2)=interval;  % last interval is the steady-state ISI
         
     end
@@ -128,7 +132,6 @@ end
 % replace all Inf from zero division in matrix byy 0
 firing_rate=1./ISI;
 firing_rate(isinf(firing_rate)) = 0;    
-
 
 %% plot graphs
 switch question_number
