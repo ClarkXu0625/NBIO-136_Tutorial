@@ -3,7 +3,7 @@
 
 %% parameter
 G_leak = 30e-9;
-Gmax_Na = 12e-3;
+Gmax_Na = 12e-6;
 Gmax_K = 3.6e-6;
 E_Na = 0.045;
 E_K = -0.082;
