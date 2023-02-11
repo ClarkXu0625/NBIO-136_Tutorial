@@ -56,7 +56,7 @@ switch question_number
     case 3
         % question(c)
         duration = 5e-3;
-        delay = [5e-3, 10e-3, 15e-3, 20e-3, 25e-3];
+        delay = 20e-3;
         repetition = 10;
         amplitude = 0.22e-9;
         Ibaseline = 0;
@@ -67,7 +67,7 @@ switch question_number
         repetition = 10;    % 10 repetitions
         amplitude = 0; % inhibitory pulse is 0
         Ibaseline = 0.6e-9;
-        Vm0 = -0.065;
+        Vm0 = -0.065; 
         m0 = 0.05;
         n0 = 0.35;
         h0 = 0.5;
@@ -85,7 +85,7 @@ switch question_number
         h0 = 0.5;
     case 6
         % question(f)
-        start_time=0.1;
+        start_time = 0.1;
         duration = 5e-3;
         delay = 0;
         repetition = 1;
@@ -147,6 +147,7 @@ for i = 2:Nt
     Vm(1,i) = Vm(1,i-1) + dVm*(dt/C_m);
 end
 
+%% plot the figures
 figure(1)
 subplot(2,1,1);
 plot(tvec,Iapp);
