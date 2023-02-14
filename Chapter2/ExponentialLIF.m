@@ -3,17 +3,16 @@
 % Written By Clark Xu, Feb. 7, 2023
 %%%%%%%%%%%%
 
-
 % Accepted inputs are 1, 2, 3, and 4. 1 refers to question 1(a), 2 refers 
 % to question 1(b), 3 refers to 2(a), 4 refers to 2(b)
-question_number=2;
+question_number=4;
 
 %% Parameters
+E_l = -0.075;   % reverse potential
+Vth = -0.050;   % threashold for membrane potential
+Vreset = -0.080;    % membrane potential for reset
 switch question_number
-    case {1,2}
-        E_l = -0.075;
-        Vth = -0.050;
-        Vreset = -0.080;
+    case {1,2}        
         R_m = 1e8;
         C_m = 100e-12;
         E_K = -0.080;
@@ -21,10 +20,7 @@ switch question_number
         tau_RSA = 0.200;
         tau_m = C_m*R_m;
     case {3,4}
-        E_l = -0.075;
-        Vth = -0.050;
         Vmax = 0.100;
-        Vreset = -0.080;
         delta_th=0.002;
         G_L = 10e-9;
         C_m = 100e-12;
@@ -134,28 +130,31 @@ firing_rate=1./ISI;
 firing_rate(isinf(firing_rate)) = 0;    
 
 %% plot graphs
+clf
 switch question_number
     case 1
         figure(1)
         subplot(3,1,1);
         plot(t, Iapp_vector);
-        ylabel("Iapp")
+        ylabel("Iapp (A)")
         subplot(3,1,2);
         plot(t, V);
         ylabel("membrane potential (V)")
         subplot(3,1,3);
 
         plot(t, G_SRA);
-        ylabel("adaptation conductance")
+        ylabel("adaptation conductance (F)")
+        xlabel("time (s)")
         
     case 3
         figure(1)
         subplot(2,1,1);
         plot(t, Iapp_vector);
-        ylabel("Iapp")
+        ylabel("Iapp (A)")
         subplot(2,1,2);
         plot(t, V);
         ylabel("membrane potential (V)")
+        xlabel("time(s)")
         
     case {2,4}
         figure(2)
@@ -164,7 +163,18 @@ switch question_number
         hold on
         plot(Iapp_values,firing_rate(:,2));
         ylabel("firing rate (Hz)")
-        legend(["initial state", "steady state"]);
+        legend(["initial state", "steady state"], 'Location', 'northwest');
+        xlabel("Iapp (A)")
+        ylabel("Spike Rate (Hz)")
+        yline(50, "--", "firing rate = 50Hz" ,'HandleVisibility','off')
         
 
+end
+
+if question_number==4
+    figure(10)
+    for i=1:5
+        subplot(5,1,i)
+        plot(I_SRA(9+i,:))
+    end
 end
