@@ -78,6 +78,7 @@ for trial=1:Ntrial
 
     last_spike = 0; %initialize time for last spike every trial
     interval=0; % initialize INI every trial
+    initial_interval = 0;
 
     for i = 2:Nt
         
@@ -113,24 +114,40 @@ for trial=1:Ntrial
             interval=i*dt-last_spike;   % INI updated every spike
 
             if last_spike==0
-                ISI(trial,1)=interval;  % fist inter-spike interval         
+                ISI(trial,1)=interval;  % fist inter-spike interval      
+                initial_interval = interval;
             end  
 
-            last_spike=i*dt;    % update last spike
+            last_spike=i*dt;    % update last spike           
         end
-
+        
         ISI(trial,2)=interval;  % last interval is the steady-state ISI
+
+        % if last spike is not lasting until the end of the simulation, the
+        % system did not enter a steady state. The steady state interval
+        % will be 0
+        if last_spike<4
+            ISI(trial,2) = 0;
+        end
         
     end
 end
 
 % Get the inverse of inter-spike interval value as the firing rate.
-% replace all Inf from zero division in matrix byy 0
+% replace all Inf from zero division in matrix by 0
 firing_rate=1./ISI;
 firing_rate(isinf(firing_rate)) = 0;    
 
 %% plot graphs
-clf
+clf     % clear the figure
+
+% Set default styles for the plot
+set(0,'DefaultLineLineWidth',2,...
+    'DefaultLineMarkerSize',8, ...
+    'DefaultAxesLineWidth',2, ...
+    'DefaultAxesFontSize',14,...
+    'DefaultAxesFontWeight','Bold');
+
 switch question_number
     case 1
         figure(1)
@@ -157,7 +174,7 @@ switch question_number
         xlabel("time(s)")
         
     case {2,4}
-        figure(2)
+        figure(1)
         ylabel("inverse of ISI")
         scatter(Iapp_values,firing_rate(:,1),'filled','<');
         hold on
@@ -167,14 +184,5 @@ switch question_number
         xlabel("Iapp (A)")
         ylabel("Spike Rate (Hz)")
         yline(50, "--", "firing rate = 50Hz" ,'HandleVisibility','off')
-        
-
 end
 
-if question_number==4
-    figure(10)
-    for i=1:5
-        subplot(5,1,i)
-        plot(I_SRA(9+i,:))
-    end
-end

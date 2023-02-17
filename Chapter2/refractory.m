@@ -17,7 +17,7 @@ dt = 1e-4;
 t = 0:dt:t_max;
 Nt = length(t);
 
-question_number = 2;    % Allowed inputs are [1, 2, 3]
+question_number = 1;    % Allowed inputs are [1, 2, 3]
 
 %% Set up Vectors
 Vm = zeros(1, Nt);
