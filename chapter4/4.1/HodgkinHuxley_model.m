@@ -6,7 +6,7 @@
 
 % accepted inputs for variable question_number are [1, 2, 3, 4, 5, 6]
 % Each input matches question number [a, b, c, d, e, f]
-question_number=5; 
+question_number=3; 
 
 
 %% parameter
@@ -55,13 +55,15 @@ switch question_number
         delay = 0;
     case 3
         % question(c)
+        start_time = 0.1;
         duration = 5e-3;
-        delay = 20e-3;
+        delay = 13e-3;
         repetition = 10;
         amplitude = 0.22e-9;
         Ibaseline = 0;
     case 4
         % question(d)
+        start_time=0.1;
         duration = 5e-3;    % 5ms pulse
         delay = 20e-3;  % 20ms delay
         repetition = 10;    % 10 repetitions
@@ -147,11 +149,20 @@ for i = 2:Nt
     Vm(1,i) = Vm(1,i-1) + dVm*(dt/C_m);
 end
 
+%% Set default styles for the plot
+set(0,'DefaultLineLineWidth',2,...
+    'DefaultLineMarkerSize',8, ...
+    'DefaultAxesLineWidth',2, ...
+    'DefaultAxesFontSize',14,...
+    'DefaultAxesFontWeight','Bold');
+
 %% plot the figures
 figure(1)
 subplot(2,1,1);
+
 plot(tvec,Iapp);
-ylabel("applied current")
+axis([0 tmax -0.5e-9 1.05e-9])
+
 subplot(2,1,2);
 plot(tvec, Vm);
 ylabel("membrane potential")

@@ -12,7 +12,7 @@
 
 clear
 
-part = 'e';         % Options are 'b', 'c', 'd', 'e', 'f' for question part
+part = 'c';         % Options are 'b', 'c', 'd', 'e', 'f' for question part
 
 dt = 2e-8;          % Time step (s) must be extremely small
 tmax=0.35;          % Maximum simulation time
