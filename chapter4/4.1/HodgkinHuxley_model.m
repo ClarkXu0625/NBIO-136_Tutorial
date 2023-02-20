@@ -6,7 +6,7 @@
 
 % accepted inputs for variable question_number are [1, 2, 3, 4, 5, 6]
 % Each input matches question number [a, b, c, d, e, f]
-question_number=6; 
+question_number=5; 
 
 
 %% parameter
@@ -55,6 +55,7 @@ switch question_number
         delay = 0;
     case 3
         % question(c)
+        start_time = 0.1;
         duration = 5e-3;
         delay = 19e-3;  % delay time vary from 5-25ms
         repetition = 10;
@@ -62,6 +63,7 @@ switch question_number
         Ibaseline = 0;
     case 4
         % question(d)
+        start_time=0.1;
         duration = 5e-3;    % 5ms pulse
         delay = 20e-3;  % 20ms delay
         repetition = 10;    % 10 repetitions
@@ -145,35 +147,12 @@ for i = 2:Nt
     Vm(1,i) = Vm(1,i-1) + dVm*(dt/C_m);
 end
 
-%% Set up default parameters for plotting
-
-set(0,'DefaultLineLineWidth',2,...
-    'DefaultLineMarkerSize',8, ...
-    'DefaultAxesLineWidth',2, ...
-    'DefaultAxesFontSize',14,...
-    'DefaultAxesFontWeight','Bold');
 %% plot the figures
 figure(1)
 clf
 subplot(2,1,1);
-plot(tvec,Iapp*1e9);
-xlabel("time(s)")
-ylabel("applied current (nA)")
-
-%adjust y-axis range for applied current
-switch question_number
-    case {1,2,3,4}
-        axis([0 tmax -0.5 1.05])
-    case {5,6}
-        axis([0 tmax 0.5 1.05])
-end
-
-if question_number==3
-    title(num2str(delay*1000)+"ms Pulse delay time")    
-else
-    title("Iapp value along 350ms-simulation")
-end
-
+plot(tvec,Iapp);
+ylabel("applied current")
 subplot(2,1,2);
 plot(tvec, Vm*1e3);
 ylabel("membrane potential (mV)")
