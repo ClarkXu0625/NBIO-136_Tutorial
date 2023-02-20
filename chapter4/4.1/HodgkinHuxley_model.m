@@ -6,7 +6,7 @@
 
 % accepted inputs for variable question_number are [1, 2, 3, 4, 5, 6]
 % Each input matches question number [a, b, c, d, e, f]
-question_number=1; 
+question_number=6; 
 
 
 %% parameter
@@ -27,7 +27,7 @@ Nt = length(tvec);
 Ntrial=1;
 
 %% vector for Iapp
-start_time=0;   % start time of the first applied current pulse
+start_time=0.1;   % start time of the first applied current pulse
 Vm0 = 0;    % initial membrane potential
 
 % each of following gating variable initate with 0, unless specified
@@ -39,7 +39,8 @@ h0 = 0;
 switch question_number
     case 1
         % Set up parameters for each question.  
-        % For question(a), no applied current                 
+        % For question(a), no applied current   
+        start_time = 0;
         duration = 0;   % duration of applied current
         repetition = 0; % number of pulses
         amplitude = 0;  % amplitude of applied current pulses
@@ -47,7 +48,6 @@ switch question_number
         delay = 0;  % delay time
     case 2
         % question(b)        
-        start_time=0.1;
         duration = 0.1;
         repetition = 1;
         amplitude = 0.22e-9;
@@ -56,7 +56,7 @@ switch question_number
     case 3
         % question(c)
         duration = 5e-3;
-        delay = 20e-3;
+        delay = 19e-3;  % delay time vary from 5-25ms
         repetition = 10;
         amplitude = 0.22e-9;
         Ibaseline = 0;
@@ -73,7 +73,6 @@ switch question_number
         h0 = 0.5;
     case 5
         % question(e)
-        start_time = 0.1;
         duration = 5e-3;
         delay = 0;
         repetition = 1;
@@ -85,7 +84,6 @@ switch question_number
         h0 = 0.5;
     case 6
         % question(f)
-        start_time = 0.1;
         duration = 5e-3;
         delay = 0;
         repetition = 1;
@@ -108,7 +106,7 @@ Iapp = Iapp*Ibaseline;
 while i<=repetition
     Iapp(1,j:j+duration/dt) = amplitude;
     i = i+1;
-    j = j + (duration+delay)/dt;
+    j = j + (delay)/dt;
 end  
 Vm(:,1) = Vm0;
 
@@ -147,24 +145,38 @@ for i = 2:Nt
     Vm(1,i) = Vm(1,i-1) + dVm*(dt/C_m);
 end
 
+%% Set up default parameters for plotting
+
+set(0,'DefaultLineLineWidth',2,...
+    'DefaultLineMarkerSize',8, ...
+    'DefaultAxesLineWidth',2, ...
+    'DefaultAxesFontSize',14,...
+    'DefaultAxesFontWeight','Bold');
 %% plot the figures
 figure(1)
+clf
 subplot(2,1,1);
-plot(tvec,Iapp);
-ylabel("applied current")
-subplot(2,1,2);
-plot(tvec, Vm);
-ylabel("membrane potential")
-xlabel("time")
+plot(tvec,Iapp*1e9);
+xlabel("time(s)")
+ylabel("applied current (nA)")
 
-figure(2)
-subplot(3,1,1)
-plot(tvec,mvec)
-ylabel("gating variable m")
-subplot(3,1,2)
-plot(tvec,nvec)
-ylabel("gating variable n")
-subplot(3,1,3)
-plot(tvec,hvec)
-ylabel("gating variable h")
-xlabel("time")
+%adjust y-axis range for applied current
+switch question_number
+    case {1,2,3,4}
+        axis([0 tmax -0.5 1.05])
+    case {5,6}
+        axis([0 tmax 0.5 1.05])
+end
+
+if question_number==3
+    title(num2str(delay*1000)+"ms Pulse delay time")    
+else
+    title("Iapp value along 350ms-simulation")
+end
+
+subplot(2,1,2);
+plot(tvec, Vm*1e3);
+ylabel("membrane potential (mV)")
+xlabel("time (s)")
+title("membrane potential during 350ms-simulation")
+

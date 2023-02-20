@@ -12,7 +12,7 @@
 
 clear
 
-part = 'e';         % Options are 'b', 'c', 'd', 'e', 'f' for question part
+part = 'f';         % Options are 'b', 'c', 'd', 'e', 'f' for question part
 
 dt = 2e-8;          % Time step (s) must be extremely small
 tmax=0.35;          % Maximum simulation time
@@ -161,7 +161,7 @@ set(0,'DefaultLineLineWidth',2,...
 
 hold on;
 
-figure(1)
+figure(2)
 clf
 
 subplot('Position',[0.15 0.6 0.8 0.36])
