@@ -6,8 +6,8 @@
 
 % accepted inputs for variable question_number are [1, 2, 3, 4, 5, 6]
 % Each input matches question number [a, b, c, d, e, f]
-question_number=5; 
-
+question_number=2; 
+disp("question number "+num2str(question_number))
 
 %% parameter
 G_leak = 30e-9; % leak conductance
@@ -57,8 +57,8 @@ switch question_number
         % question(c)
         start_time = 0.1;
         duration = 5e-3;
-        delay = 19e-3;  % delay time vary from 5-25ms
-        repetition = 10;
+        delay = 18e-3;  % delay time vary from 5-25ms
+        repetition = 12;
         amplitude = 0.22e-9;
         Ibaseline = 0;
     case 4
@@ -147,15 +147,51 @@ for i = 2:Nt
     Vm(1,i) = Vm(1,i-1) + dVm*(dt/C_m);
 end
 
+%% Set default styles for the plot
+set(0,'DefaultLineLineWidth',2,...
+    'DefaultLineMarkerSize',8, ...
+    'DefaultAxesLineWidth',2, ...
+    'DefaultAxesFontSize',14,...
+    'DefaultAxesFontWeight','Bold');
+
 %% plot the figures
 figure(1)
 clf
 subplot(2,1,1);
-plot(tvec,Iapp);
-ylabel("applied current")
+plot(tvec,Iapp*1e9);
+ylabel("applied current (nA)")
+if question_number==3
+    title(num2str(delay*1000)+"ms Pulse delay time")
+else
+    title("membrane potential during 350ms-simulation")
+end
+switch question_number
+    case {1,2,3,4}
+        axis([0 tmax -0.5 1.05])
+    case {5,6}
+        axis([0 tmax 0.5 1.05])
+end
+
 subplot(2,1,2);
 plot(tvec, Vm*1e3);
 ylabel("membrane potential (mV)")
 xlabel("time (s)")
 title("membrane potential during 350ms-simulation")
 
+% plot gating variable for report analysis
+figure(2)
+clf
+subplot(3,1,1)
+plot(tvec,mvec)
+axis([0 tmax 0 1])
+ylabel("m")
+title("Gating Variables")
+subplot(3,1,2)
+plot(tvec,nvec)
+axis([0 tmax 0 1])
+ylabel("n")
+subplot(3,1,3)
+plot(tvec,hvec);
+axis([0 tmax 0 1])
+ylabel("h")
+xlabel("time")
