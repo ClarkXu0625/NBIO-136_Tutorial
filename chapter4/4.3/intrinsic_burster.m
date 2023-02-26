@@ -24,60 +24,62 @@ set(0,'DefaultLineLineWidth',2,...
 % Plot all 12 of the rate constants for gating variables 
 % Figure 10 includes the gating variables dependent on membrane potential 
 % or Calcium concentration
-figure(10)
-
-subplot(2,3,1)
-plot(Vm_values*1000,alpha_m)
-hold on
-plot(Vm_values*1000,beta_m)
-legend(["alpha_m", "beta_m"])
-ylabel("Rate constant for m")
-
-subplot(2,3,2)
-plot(Vm_values*1000,alpha_h)
-hold on
-plot(Vm_values*1000,beta_h)
-legend(["alpha_h", "beta_h"])
-ylabel("Rate constant for h")
-
-subplot(2,3,3)
-plot(Vm_values*1000,alpha_n)
-hold on
-plot(Vm_values*1000,beta_n)
-legend(["alpha_n", "beta_n"])
-ylabel("Rate constant for n")
-
-subplot(2,3,4)
-plot(Vm_values*1000, alpha_mca)
-hold on
-plot(Vm_values*1000, beta_mca)
-legend(["alpha_mca", "beta_mca"])
-ylabel("Rate constant for m_Ca")
-
-subplot(2,3,5)
-plot(Vm_values*1000, alpha_kca)
-hold on
-plot(Vm_values*1000, beta_kca)
-legend(["alpha_kca", "beta_kca"])
-ylabel("Rate constant for m_KCa")
-
-% add label 
-for i=1:5
-    subplot(2,3,i)    
-    xlabel("Membrane potential (mV)")
+switch question_number
+    case 2
+        figure(1)
+        
+        subplot(2,3,1)
+        plot(Vm_values*1000,alpha_m)
+        hold on
+        plot(Vm_values*1000,beta_m)
+        legend(["alpha_m", "beta_m"])
+        ylabel("Rate constant for m")
+        
+        subplot(2,3,2)
+        plot(Vm_values*1000,alpha_h)
+        hold on
+        plot(Vm_values*1000,beta_h)
+        legend(["alpha_h", "beta_h"])
+        ylabel("Rate constant for h")
+        
+        subplot(2,3,3)
+        plot(Vm_values*1000,alpha_n)
+        hold on
+        plot(Vm_values*1000,beta_n)
+        legend(["alpha_n", "beta_n"])
+        ylabel("Rate constant for n")
+        
+        subplot(2,3,4)
+        plot(Vm_values*1000, alpha_mca)
+        hold on
+        plot(Vm_values*1000, beta_mca)
+        legend(["alpha_mca", "beta_mca"])
+        ylabel("Rate constant for m_Ca")
+        
+        subplot(2,3,5)
+        plot(Vm_values*1000, alpha_kca)
+        hold on
+        plot(Vm_values*1000, beta_kca)
+        legend(["alpha_kca", "beta_kca"])
+        ylabel("Rate constant for m_KCa")
+        
+        % add label 
+        for i=1:5
+            subplot(2,3,i)    
+            xlabel("Membrane potential (mV)")
+        end
+        
+        subplot(2,3,6)
+        plot(Ca_conc, alpha_kahp)
+        hold on
+        plot(Ca_conc, beta_kahp)
+        legend(["alpha_kahp", "beta_kahp"])
+        ylabel("Rate constant for m_KAHP")
+        xlabel("Calcium concentration (M)")
+        
+        sgtitle("Rate Constant Relationship with Membrane Potential (mV) or Ca" + ...
+            "Concentration (M)", 'FontWeight', 'Bold')
 end
-
-subplot(2,3,6)
-plot(Ca_conc, alpha_kahp)
-hold on
-plot(Ca_conc, beta_kahp)
-legend(["alpha_kahp", "beta_kahp"])
-ylabel("Rate constant for m_KAHP")
-xlabel("Calcium concentration (M)")
-
-sgtitle("Rate Constant Relationship with Membrane Potential (mV) or Ca" + ...
-    "Concentration (M)", 'FontWeight', 'Bold')
-
 
 %% parameters for simulation for question 3-6
 % parameters are from table 4.7 and 4.8
@@ -90,7 +92,7 @@ Gmax_K = A_S*2e-6;  % maximum delayed rectifier conductance
 Gmax_Ca = A_D*2e-6;     % maximum calcium conductance
 Gmax_KCa = A_D*2.5e-6;  % max calcium-dependent potassium condunctance
 Gmax_KAHP = A_D*40e-9;   % max after-hyperpolarization condunctance
-G_link = 100e-9 ;    % link condunctance
+G_link = 50e-9 ;    % link condunctance
 E_Na = 0.060;   % sodium reveral potential
 E_Ca = 0.080;   % calcium reversal potential
 E_K = -0.075;   % potassium reversal potential
@@ -104,7 +106,7 @@ k = 5e6/A_D;    % conversion from charge to concentration
 
 % list of G_link and Iapp_D values, applied in question 5 and 6 to explore
 % their relationship with spike count.
-G_link_values = 0:10:100;
+G_link_values = 0:5:100;
 Iapp_D_values = 0:10:200;
 
 
@@ -113,15 +115,25 @@ tmax = 2;
 dt = 2e-6;  % timestep is 2us
 tvec = 0:dt:tmax;
 Nt = length(tvec);
-switch question_number
-    case 1
-        Ntrial = 1;
+Ntrial = 1;
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+%% set up multiple trials for qeustion 5 and 6, exploring relationships
+switch question_number       
     case 5
         Ntrial = length(G_link_values)+1;
         spk = zeros(1,Ntrial-1);
+
+        % the parameters that are used in plotting for question 5
+        G_link = 50e-9; 
+        Iapp_D = 0;
     case 6
         Ntrial = length(Iapp_D_values)+1;
         spk = zeros(1,Ntrial-1);
+
+        % the parameters that are used in plotting for question 4
+        G_link = 50e-9;
+        Iapp_D = 200e-12;
 end
 
 %% Create vectors for dynamic parameters, 
@@ -155,7 +167,7 @@ for trial = 1:Ntrial
     spk_detect=0;   % check if spike is available to detect
     spk_count=0;    % count number of spikes during the simulation
 
-
+    % simulate different parameters values from the second trial.
     if question_number==5 && (trial>1)
         G_link = G_link_values(trial-1)*1e-9;
     elseif question_number==6 && (trial>1)
@@ -232,9 +244,10 @@ for trial = 1:Ntrial
     
     %% Within each trial, plot graph for the first trial, and record the 
     % number of spikes for the rest of trials to explore (G/I)-F relation
-    if trial ==1
+    % applied when question_number = 3,5,6
+    if trial ==1 && question_number>2
         disp(spk_count)
-        figure(1)
+        figure(2)
         subplot(2,1,1)
         plot(tvec,Vm_D*1000);
         ylabel("Dendritic Vm (mV)")
@@ -249,23 +262,27 @@ for trial = 1:Ntrial
         sgtitle({"Membrane Potential for Neural Components,", " G_{link} = "+ ...
             num2str(G_link*1e9)+ "nS, Iapp_{Dendrite} = "+ ...
             num2str(Iapp_D*1e12)+ "pA"}, "FontWeight", "Bold")
-    else
-        
+    end
+
+    %% applied only for multiple trials when exploring relationships 
+    % between parameters and spike number
+    if trial>1        
         spk(trial-1) = spk_count;   % record number of spikes
     end
 end
 
 %% plot the relationship between G_link or Iapp_dentrite with spike number
 if question_number==5
-    figure(2)
+    figure(3)
     scatter(G_link_values,spk)
-    
+    title(["Correlation between G_{link} and number of spikes", ...
+        "in 2-scecond simulation"])
+    xlabel("G_{link} (nS)")    
 elseif question_number==6
-    figure(2)
+    figure(3)
     scatter(Iapp_D_values, spk)
+    title(["Correlation between dendritic applied current", ...
+        "and number of spikes in 2-scecond simulation"])
+    xlabel("Iapp_{dendritic} (pA)")
+    
 end
-
-
-
-
-
