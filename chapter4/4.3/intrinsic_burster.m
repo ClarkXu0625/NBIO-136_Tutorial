@@ -1,8 +1,10 @@
 %% tutorial 4.3
 % A two-compartment model of an intrinsically bursting neuron. 
-% Written by Clark Xu, Feb. 17, 2023
+% Written by Clark Xu. Last modify on 2/27/2023.
 
-question_number = 6;
+question_number = 6;    % allow 2, 3 (4), 5, 6
+mode='d';   % switch to either 's' or 'd' in q6.
+disp("question number "+num2str(question_number) + ", mode=" +mode)
 
 % vector for different values of membrane potential
 Vm_values = -0.085:0.001:0.050;
@@ -107,7 +109,7 @@ k = 5e6/A_D;    % conversion from charge to concentration
 % list of G_link and Iapp_D values, applied in question 5 and 6 to explore
 % their relationship with spike count.
 G_link_values = 0:5:100;
-Iapp_D_values = 0:10:200;
+Iapp_values = 0:10:200;
 
 
 %% Set up time vector
@@ -122,18 +124,23 @@ Ntrial = 1;
 switch question_number       
     case 5
         Ntrial = length(G_link_values)+1;
-        spk = zeros(1,Ntrial-1);
+        spk = zeros(1,Ntrial-1);    % number of spikes
+        burst = zeros(1, Ntrial-1); % number of bursts
+        rate = zeros(1, Ntrial-1);  % average number of spikes per burst
 
         % the parameters that are used in plotting for question 5
-        G_link = 50e-9; 
+        G_link = 15e-9; 
         Iapp_D = 0;
     case 6
-        Ntrial = length(Iapp_D_values)+1;
+        Ntrial = length(Iapp_values)+1;
         spk = zeros(1,Ntrial-1);
+        burst = zeros(1,Ntrial-1);
+        rate = zeros(1, Ntrial-1);
 
         % the parameters that are used in plotting for question 4
         G_link = 50e-9;
-        Iapp_D = 200e-12;
+        Iapp_D = 100e-12;
+        Iapp_S = 0e-12;
 end
 
 %% Create vectors for dynamic parameters, 
@@ -151,7 +158,7 @@ Ca_conc_vec = zeros(size(Vm_D));    % concentration
 
 up_th = -0.010;     % membrane potential exceeding up_threshold counts as a spike when spk_detect avaiable
 down_th = -0.030;   % when membrane potential drops below down_threhold, spk_detect becomes available
-
+min_interval = 0.012;
 
 %% Set default styles for the plot
 set(0,'DefaultLineLineWidth',2,...
@@ -166,12 +173,20 @@ for trial = 1:Ntrial
     % initialize spk_detect and spk_count for each trial
     spk_detect=0;   % check if spike is available to detect
     spk_count=0;    % count number of spikes during the simulation
+    burst_count = 0;    % number of burst in this trial
+    last_spike = 0; % time for last spike
 
     % simulate different parameters values from the second trial.
     if question_number==5 && (trial>1)
         G_link = G_link_values(trial-1)*1e-9;
     elseif question_number==6 && (trial>1)
-        Iapp_D = Iapp_D_values(trial-1)*1e-12;
+        if mode=='d'
+            Iapp_D = Iapp_values(trial-1)*1e-12;
+            Iapp_S = 0;
+        elseif mode=='s'
+            Iapp_S = Iapp_values(trial-1)*1e-12;
+            Iapp_D = 0;
+        end
     end
 
     for i = 2:Nt
@@ -229,24 +244,37 @@ for trial = 1:Ntrial
         Vm_D(1,i) = Vm_D(1,i-1)+dV_D;
     
         %% detect spike and increment spk_detect if detected a spike
-        if spk_detect
-            if Vm_S(1,i)>up_th
+        if spk_detect   % when Vm have dropped below down_th
+            if Vm_S(1,i)>up_th 
                 spk_detect=0;
                 spk_count=spk_count+1;
+
+                % When inter-spike interval is greater than the 
+                % min_interval, it count as a new burst
+                if (i-last_spike)>(min_interval/dt)
+                    burst_count=burst_count+1;
+                end
+                
+                last_spike = i; % update last spike
             end
-        else
+        else    % when Vm have rise above up_th, not yet drop below down_th
             if Vm_S(1,i)<down_th
                 spk_detect=1;
             end
         end
-    
+           
     end
     
     %% Within each trial, plot graph for the first trial, and record the 
     % number of spikes for the rest of trials to explore (G/I)-F relation
     % applied when question_number = 3,5,6
     if trial ==1 && question_number>2
-        disp(spk_count)
+        disp("When G_{link} = " +num2str(G_link*1e9) + ...
+            "nS, Iapp_{dendrite} = " + num2str(Iapp_D*1e12) + "pA,"+ ...
+            "and Iapp_{soma} = " + num2str(Iapp_S*1e12) + "pA")
+        disp("number of spikes is "+ num2str(spk_count))
+        disp("number of bursts is "+ num2str(burst_count))
+        disp("average number of spikes per burst is " + num2str(spk_count/burst_count))
         figure(2)
         subplot(2,1,1)
         plot(tvec,Vm_D*1000);
@@ -261,13 +289,22 @@ for trial = 1:Ntrial
         
         sgtitle({"Membrane Potential for Neural Components,", " G_{link} = "+ ...
             num2str(G_link*1e9)+ "nS, Iapp_{Dendrite} = "+ ...
-            num2str(Iapp_D*1e12)+ "pA"}, "FontWeight", "Bold")
+            num2str(Iapp_D*1e12)+ "pA, Iapp_{Soma} = "+ ...
+            num2str(Iapp_S*1e12)+ "pA"}, "FontWeight", "Bold")
     end
 
     %% applied only for multiple trials when exploring relationships 
     % between parameters and spike number
     if trial>1        
         spk(trial-1) = spk_count;   % record number of spikes
+        burst(trial-1) = burst_count;
+
+        count=spk_count/burst_count;
+        if count<5
+            rate(trial-1) = count;
+        else
+            rate(trial-1)=1;
+        end
     end
 end
 
@@ -277,12 +314,41 @@ if question_number==5
     scatter(G_link_values,spk)
     title(["Correlation between G_{link} and number of spikes", ...
         "in 2-scecond simulation"])
-    xlabel("G_{link} (nS)")    
+    xlabel("G_{link} (nS)") 
+    ylabel("spiking count")
+
+    figure(4)
+    scatter(G_link_values, rate)
+    title(["Correlation between G_{link} and number of spikes", ...
+        "per burst"])
+    xlabel("G_{link} (nS)")  
+    ylabel("spiking per burst")
+
 elseif question_number==6
     figure(3)
-    scatter(Iapp_D_values, spk)
-    title(["Correlation between dendritic applied current", ...
-        "and number of spikes in 2-scecond simulation"])
-    xlabel("Iapp_{dendritic} (pA)")
+    scatter(Iapp_values, spk)
+    if mode=='s'
+        title(["Correlation between somatic applied current", ...
+            "and number of spikes in 2-scecond simulation"])
+        xlabel("Iapp_{somatic} (pA)") 
+    elseif mode=='d'
+        title(["Correlation between dendritic applied current", ...
+            "and number of spikes in 2-scecond simulation"])
+        xlabel("Iapp_{dendritic} (pA)") 
+    end
+    ylabel("spiking count")
+
+    figure(4)
+    scatter(Iapp_values, rate)
+    if mode=='s'
+        title(["Correlation between somatic applied current", ...
+        "and number of spikes per burst"])
+        xlabel("Iapp_{somatic} (pA)") 
+    elseif mode=='d'
+        title(["Correlation between dendritic applied current", ...
+        "and number of spikes per burst"])
+        xlabel("Iapp_{dendritic} (pA)")  
+    end
     
+    ylabel("spiking per burst")
 end
