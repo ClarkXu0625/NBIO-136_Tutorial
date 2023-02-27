@@ -6,7 +6,7 @@
 
 % accepted inputs for variable question_number are [1, 2, 3, 4, 5, 6]
 % Each input matches question number [a, b, c, d, e, f]
-question_number=2; 
+question_number=1; 
 disp("question number "+num2str(question_number))
 
 %% parameter
