@@ -5,7 +5,7 @@
 
 % Accepted inputs are 1, 2, 3, and 4. 1 refers to question 1(a), 2 refers 
 % to question 1(b), 3 refers to 2(a), 4 refers to 2(b)
-question_number=4;
+question_number=3;
 
 %% Parameters
 E_l = -0.075;   % reverse potential

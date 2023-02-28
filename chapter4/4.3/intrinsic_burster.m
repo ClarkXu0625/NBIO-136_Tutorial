@@ -2,7 +2,7 @@
 % A two-compartment model of an intrinsically bursting neuron. 
 % Written by Clark Xu. Last modify on 2/27/2023.
 
-question_number = 6;    % allow 2, 3 (4), 5, 6
+question_number = 2;    % allow 2, 3 (4), 5, 6
 mode='d';   % switch to either 's' or 'd' in q6.
 disp("question number "+num2str(question_number) + ", mode=" +mode)
 
