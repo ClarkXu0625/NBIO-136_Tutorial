@@ -1,3 +1,6 @@
+% Tutorial 3.1, Generating receptive fields with spike-triggered averages
+% Written by Clark Xu, last modified on 3/1/2023
+
 %% parameters
 E_l = -0.060;
 V_th = -0.050;
@@ -10,30 +13,29 @@ b = 0.5e-9;
 tau_SRA = 0.050;
 
 %% set up vectors
-Nblock = 4e5;   % number of time blocks
-block = 5e-3;   % each time block is 5ms
+Nblock = 4e5;       % number of time blocks
+block = 5e-3;       % each time block is 5ms
+Iapp_rand = (1e-9).*rand(1,Nblock) - 0.5e-9;  % applied current, uniformly random within ±0.5nA  
+dt = 2e-5;          % 0.02ms, time-bin of neuron
+new_dt = 0.001;     % 1ms, this analysis focus on changes on a time-scale of 1ms or more
+tvec = 0:dt:(block*Nblock-dt);  % time vector for neuron simulation
+Nt = length(tvec);              % Number of time steps for neuron simulation
+Iapp = zeros(size(tvec));       % Applied current, same size as time vector
+ratio = round(block/dt);        % times new vector greater than old
 
-% applied current, random within ±0.5nA
-Iapp_rand = (1e-9).*rand(1,Nblock) - 0.5e-9; 
-dt = 2e-5;  % 0.02ms, time-bin of neuron
-new_dt = 0.001; % 1ms, only interested in changes on a time-scale of 1ms or more
-tvec = 0:dt:(block*Nblock-dt); 
-Nt = length(tvec);
-Iapp = zeros(size(tvec));
-ratio = round(block/dt);   % times new vector greater than old
-
+% 250 repetition for each randomly generized Iapp value
 for i=1:Nblock
     Iapp(1, (i-1)*ratio+1 : i*ratio) = Iapp_rand(1,i);
 end
 
+% Set up vectors for membrane potential V for simulation, I_SRA, and spike 
+% which records the time that the neuron fires
+V = zeros(1, Nt);       % Membrane Potential
+V(:,1)=E_l;             % initialize membrane potential
+I_SRA = zeros(1,Nt);   % spike-rate adaptation current
+spike = zeros(size(V));     % vector recording spike time
 
-Ntrial = 1;
-% Set up vectors for Vm, G_SRA, and I_SRA
-V = zeros(Ntrial, Nt);  % Membrane Potential
-V(:,1)=E_l; % initialize membrane potential
-I_SRA = zeros(Ntrial,Nt);
-spike = zeros(size(V));
-
+%% simulation starts here.
 for i = 2:Nt-1
     dI_SRA = (a*(V(1,i-1)-E_l)-I_SRA(1,i-1))*dt/tau_SRA;
     I_SRA(1,i) = I_SRA(1,i-1)+dI_SRA;
@@ -52,10 +54,12 @@ for i = 2:Nt-1
     end    
 end
 
-Iapp = expandbin(Iapp, dt, new_dt);
-spike = expandbin(spike, dt, new_dt);
+Iapp = expandbin(Iapp, dt, new_dt);     % expand Iapp timebin
+spike = expandbin(spike, dt, new_dt);   % expand spike timebin
 spike(find(spike)) = 1;   % replace fractions with a "1" for a spike
-[sta, tcorr] = STA(Iapp, spike, new_dt);
+[sta, tcorr] = STA(Iapp, spike, new_dt);   
 
-figure(2)
+
+figure(1)
+hold on
 plot(tcorr,sta)
