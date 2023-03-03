@@ -1,7 +1,7 @@
 % Tutorial 3.2: Statistical properties of simulated spike trains. 
-% Written by Clark Xu, 2/28/2023
+% Written by Clark Xu, last modified in 3/3/2023
 
-% parameters
+%% parameters
 E_l = -0.070;
 V_th = -0.050;
 V_reset = -0.080;
@@ -16,9 +16,10 @@ sigma = 50e-12;
 
 % time vector
 dt = 1e-5;
-tmax = 0.1;
+tmax = 100;
 tvec = 0:dt:tmax;
 Nt = length(tvec);
+%Iapp = zeros(1,Nt);
 Iapp = normrnd(0,sigma/sqrt(dt),1,Nt);
 
 % Set up vectors for membrane potential V for simulation, I_SRA, and spike 
@@ -47,15 +48,23 @@ for i = 2:Nt-1
     end    
 end
 
-spike_index = find(spikes);
+spike_index = find(spikes);     % list of index when neruon fires
 ISI = zeros(1, length(spike_index)-1);
+
 for i = 1:length(ISI)
     ISI(i) = spike_index(i+1)-spike_index(i);
 end
 
-plot(tvec, Iapp)
-disp(spike_index)
 
-histogram(ISI,25)
-cv = std(ISI)/mean(ISI);
-disp(cv)
+figure(1)
+histogram(ISI*dt,25)
+xlabel("ISI (s)")
+ylabel("Count")
+
+
+bin_size = 0.010: 0.0010: 1;
+[fano] = fano_factor(spikes, dt, bin_size);
+figure(2)
+plot(bin_size,fano);
+xlabel("bin size (s)")
+ylabel("fano factor")
