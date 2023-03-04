@@ -16,7 +16,7 @@ sigma = 50e-12;
 
 % time vector
 dt = 1e-5;
-tmax = 100;
+tmax = 10;
 tvec = 0:dt:tmax;
 Nt = length(tvec);
 %Iapp = zeros(1,Nt);
@@ -57,9 +57,10 @@ end
 
 
 figure(1)
-histogram(ISI*dt,25)
-xlabel("ISI (s)")
+histogram(ISI*dt*1000,125)
+xlabel("ISI (ms)")
 ylabel("Count")
+
 
 
 bin_size = 0.010: 0.0010: 1;
@@ -68,3 +69,12 @@ figure(2)
 plot(bin_size,fano);
 xlabel("bin size (s)")
 ylabel("fano factor")
+
+figure(10)
+subplot(3,1,1)
+plot(tvec, I_SRA)
+subplot(3,1,2)
+plot(tvec, V)
+subplot(3,1,3)
+plot(tvec,spikes)
+axis([0 tmax 0 2]);
