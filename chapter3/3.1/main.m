@@ -61,5 +61,5 @@ spike(find(spike)) = 1;   % replace fractions with a "1" for a spike
 
 
 figure(1)
-hold on
+
 plot(tcorr,sta)

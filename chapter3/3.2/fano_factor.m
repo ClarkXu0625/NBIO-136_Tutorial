@@ -1,8 +1,10 @@
-function [fano] = fano_factor(spikes, dt, bin)
+function [fano, variance, mean] = fano_factor(spikes, dt, bin)
 % Input parameters are spike vector (spikes) contains only 0 and 1, dt for 
 % spike vector, and desired bin size (bin), can be a list of bin size
 % values.
     fano = zeros(size(bin));
+    mean = zeros(size(bin));
+    variance = zeros(size(bin));
 
     for j = 1: length(bin)
         bin_size = bin(j);
@@ -18,8 +20,8 @@ function [fano] = fano_factor(spikes, dt, bin)
             spk_num(i) = length(find(spikes((i-1)*Nt+1 : i*Nt)));
         end
     
-        mean = sum(spk_num)/Nbin;
-        variance = var(spk_num);
+        mean(j) = sum(spk_num)/Nbin;
+        variance(j) = var(spk_num);
 
         fano(j) = variance/mean;
     end
