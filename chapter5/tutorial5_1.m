@@ -6,7 +6,7 @@
 
 clear
 option=1;
-option_num = 'A';
+option_num = 'B';
 
 dt = 1e-4;  % 0.1 ms
 tmax = 4;   % 4s simulation
@@ -17,7 +17,7 @@ Ntrial = 1;
 if option && option_num=='A'
     Ntrial = 50;
 elseif option && option_num=='B'
-    Ntrial = 3;
+    Ntrial = 1;
 end
 
 % create vectors and initialize them
@@ -73,7 +73,9 @@ if option && option_num=='B'
     C_m = 20e-12;
     V = zeros(3,Nt);
     Vth = -0.050;
-    V_reset = -0.080;    
+    V_reset = -0.080; 
+    spike = spikes*0;   % reset spikes to 0
+    %V(:,1) = E_L;
 end
 
 
@@ -86,15 +88,7 @@ for trial = 1:Ntrial
         D(trial,:,i) = D(trial,:,i-1) + (1-D(trial,:,i-1))/tau_D*dt;  % increment Decay        
         G(trial,:,i) = G(trial,:,i-1) - G(trial,:,i-1)/tau_G*dt;    % G decays
         
-        % update V for option B
-        if option && option_num=='B'              
-            V(trial,i) = V(trial,i-1) + (G_L*(E_L-V(trial,i-1))+ ...
-                G(trial,trial,i-1)*(E_syn-V(trial,i-1)))*dt/C_m;  
-            if V(trial,i)>Vth
-                V(trial,i) = V_reset;
-                spikes(trial,i) = 1;
-            end
-        end
+        
          
         if spikes(trial,i)   % changes when fires, spikes(i) == 1, otherwise 0            
             F(trial,i) = F(trial,i) + f_fac*(F_max-F(trial,i-1));
@@ -103,6 +97,20 @@ for trial = 1:Ntrial
             G(trial,1,i) = G(trial,1,i) + delG;     % increment by fixed delG = 1nS
             G(trial,2,i) = G(trial,2,i) + del_Gmax*p0_G*D(trial,1,i-1);   % relate to D only     
             G(trial,3,i) = G(trial,3,i) + del_G3max*p0_G*F(trial,i-1)*D(trial,2,i-1); % relate to D and F
+        end
+
+
+        % update V for option B
+        if option && option_num=='B'
+            for j=1:3
+                V(j,i) = V(j,i-1) + (G_L*(E_L-V(j,i-1))+ ...
+                    G(trial,j,i-1)*(E_syn-V(j,i-1)))*dt/C_m;
+    
+                if V(j,i)>Vth
+                    V(j,i) = V_reset;
+                    spike(j,i) = 1;
+                end
+            end
         end
     end  
 end
@@ -136,7 +144,7 @@ if option==0
 else    % plot graphs for optional questions
     if option_num=='B'
 
-        figure(1)
+        figure(3)
         spike_count = zeros(3,4);
         for i=1:3
             subplot(3,1,i)
@@ -144,11 +152,20 @@ else    % plot graphs for optional questions
             
             % count the number of spikes in each second interval
             for j=1:4
-                spike_count(i,j) = length(find(spikes(i,(j-1)/dt+1:j/dt)));
+                spike_count(i,j) = length(find(spike(i,(j-1)/dt+1:j/dt)));
             end
         end
         disp(spike_count)
-    elseif option_num=='A'
+
+        figure(2)
+        for i = 1:3
+            subplot(3,1,i)
+            plot(tvec, reshape(G(1,i,:), 1, Nt))
+
+        end
+    end
+
+    if option_num=='A'
         Gsum = reshape(sum(G,1), 3, Nt);    % sum up 50 trials
 
         figure(1)
