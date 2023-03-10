@@ -105,6 +105,7 @@ for trial = 1:Ntrials
     
     % Plot the distribution of ISIs
     subplot('Position',[0.65 1.05-trial*0.195 0.3 0.09 ])
+    min_isi = min(isis);
     h=histogram(isis,[5:10:155])
     h.FaceColor = 'k'
     

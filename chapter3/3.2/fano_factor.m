@@ -12,7 +12,6 @@ function [fano, variance, mean] = fano_factor(spikes, dt, bin)
         Nt = floor(bin_size/dt);    % number of time steps within each time bin
 
         Nbin = floor(length(spikes)/Nt);   % number of bins
-
         
         spk_num = zeros(1, Nbin);   % vector that counts number of spikes within each time bin
 
@@ -20,9 +19,10 @@ function [fano, variance, mean] = fano_factor(spikes, dt, bin)
             spk_num(i) = length(find(spikes((i-1)*Nt+1 : i*Nt)));
         end
     
-        mean(j) = sum(spk_num)/Nbin;
-        variance(j) = var(spk_num);
-
-        fano(j) = variance/mean;
+        mean(j) = sum(spk_num)/Nbin;    % mean spike time within all bins
+        variance(j) = var(spk_num);     % variace of spike time
+        fano(j) = variance(j)/mean(j);        % fano vector
     end
+
+    
 end
