@@ -24,10 +24,10 @@ switch question_number
         b = 1e-9;
         sigma = 50e-12;
         Iapp_cons = 0e-9;
-    case {'c'}
+    case 'c'
         b = 0e-9;
         sigma = 20e-12;
-        Iapp_cons = 0.1e-9;
+        Iapp_cons = 1.0e-9;
 end
 
 % time vector
@@ -90,17 +90,28 @@ figure(1)
 histogram(ISI, min_ISI : (max_ISI-min_ISI)/25 : max_ISI); % 25 time bins
 xlabel("ISI (ms)")
 ylabel("Count")
-title("cv = " + num2str(cv) + " cv2 = " + num2str(cv2))
+title({"Histogram of ISIs, cv = " + num2str(cv), ...
+            "input current constant term = "+num2str(Iapp_cons*1e9)+"nA"})
 
 switch question_number 
-    case {a, b}
+    case {'a', 'b', 'c'}
         %% find the fano factor by bin size, varying from 10ms to 1s.
-        bin_size = 0.010: 0.001: 1;
-        [fano, ~, ~] = fano_factor(spikes, dt, bin_size);
+        bin_size = 0.010: 0.01: 1;
+        [fano, variance, mean] = fano_factor(spikes, dt, bin_size);
         figure(2)
         plot(bin_size,fano);
-        xlabel("bin size (s)")
+        title("fano factor against window size")
+        xlabel("window size (second)")
         ylabel("fano factor")
+        
+        figure(3)
+        subplot(2,1,1)
+        plot(bin_size, variance)
+        ylabel("variance of spike number")
+        subplot(2,1,2)
+        plot(bin_size, mean);
+        xlabel("window size (second)")
+        ylabel("mean spike number")
 end
 
 [fano, variance, mean] = fano_factor(spikes, dt, 0.1);
