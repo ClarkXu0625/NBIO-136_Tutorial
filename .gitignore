@@ -1,5 +1,8 @@
 *.asv
+*/*.asv
+*/*/*.asv
 .DS_Store
 */.DS_Store
 */*/.DS_Store
 */*.zip
+*/*/*.zip

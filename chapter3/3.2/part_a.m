@@ -1,9 +1,9 @@
 % Tutorial 3.2: Statistical properties of simulated spike trains. 
-% Written by Clark Xu, last modified in 3/9/2023
+% Written by Clark Xu, last modified in 3/10/2023
 
 clear
 
-question_number = 'c';
+question_number = 'a';
 disp("question " + question_number+")")
 %% parameters
 E_l = -0.070;
@@ -27,7 +27,7 @@ switch question_number
     case 'c'
         b = 0e-9;
         sigma = 20e-12;
-        Iapp_cons = 1.0e-9;
+        Iapp_cons = 0.1e-9;
 end
 
 % time vector
@@ -94,7 +94,7 @@ title({"Histogram of ISIs, cv = " + num2str(cv), ...
             "input current constant term = "+num2str(Iapp_cons*1e9)+"nA"})
 
 switch question_number 
-    case {'a', 'b', 'c'}
+    case {'a', 'b'}
         %% find the fano factor by bin size, varying from 10ms to 1s.
         bin_size = 0.010: 0.01: 1;
         [fano, variance, mean] = fano_factor(spikes, dt, bin_size);
