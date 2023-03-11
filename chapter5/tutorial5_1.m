@@ -2,7 +2,7 @@
 % Include main part, as well as option A and B
 % Alter option at line 8 to either 0 or 1 to view the optional question
 % Alter option_num at line 9 to either 'A' or 'B' to view plots
-% Written by Clark Xu, last modified on 3/9/2023
+% Written by Clark Xu, last modified on 3/11/2023
 
 clear
 option=1;
@@ -74,8 +74,7 @@ if option && option_num=='B'
     V = zeros(3,Nt);
     Vth = -0.050;
     V_reset = -0.080; 
-    spike = spikes*0;   % reset spikes to 0
-    %V(:,1) = E_L;
+    spike = spikes*0;   % spike records the spike time
 end
 
 
